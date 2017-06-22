@@ -85,11 +85,17 @@ public class GetRuntimeFormDefinitionCmd implements Command<FormDefinition>, Ser
     this.formDefinitionKey = formDefinitionKey;
     this.formId = formId;
     this.tenantId = tenantId;
+    this.variables = new HashMap<String, Object>();
     if (variables != null) {
-      this.variables = variables;
-    } else {
-      this.variables = new HashMap<String, Object>();
-    }
+    	for (String variableName: variables.keySet()) {
+    		Object variable = variables.get(variableName);
+    		if (variable instanceof LocalDate) { // fix ACT-4308
+				this.variables.put(variableName, variable.toString());
+			} else {
+				this.variables.put(variableName, variable);
+			}
+    	}
+    } 
   }
 
   protected void fillFormFieldValues(FormDefinition formDefinition, CommandContext commandContext) {
@@ -181,7 +187,7 @@ public class GetRuntimeFormDefinitionCmd implements Command<FormDefinition>, Ser
       for (SubmittedForm otherForm : submittedForms) {
         try {
           JsonNode submittedNode = formEngineConfiguration.getObjectMapper().readTree(otherForm.getFormValueBytes());
-          if (submittedNode == null || submittedNode.get("values") != null) {
+          if (submittedNode == null || submittedNode.get("values") == null) {
             continue;
           }
          
@@ -221,7 +227,7 @@ public class GetRuntimeFormDefinitionCmd implements Command<FormDefinition>, Ser
         try {
           if (StringUtils.isNotEmpty(fieldValue)) {
             LocalDate dateValue = LocalDate.parse(fieldValue);
-            variables.put(field.getId(), dateValue);
+            variables.put(field.getId(), dateValue.toString("yyyy-M-d"));
           }
         } catch (Exception e) {
           logger.error("Error parsing form date value for process instance " + processInstanceId + " with value " + fieldValue, e);
