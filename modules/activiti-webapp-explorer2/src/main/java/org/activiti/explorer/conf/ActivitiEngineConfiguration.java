@@ -37,6 +37,12 @@ public class ActivitiEngineConfiguration {
 
   private final Logger log = LoggerFactory.getLogger(ActivitiEngineConfiguration.class);
   
+  private static final String TASK_QUERY_LIMIT = "TaskQueryLimit";
+  private static final String EXECUTION_QUERY_LIMIT = "ExecutionQueryLimit";
+  private static final String HISTORIC_QUERY_LIMIT = "HistoricTaskQueryLimit";
+  private static final String HISTORIC_PROCINST_QUERY_LIMIT = "HistoricProcessInstancesQueryLimit";
+  
+  
   @Autowired
   protected Environment environment;
   
@@ -99,6 +105,11 @@ public class ActivitiEngineConfiguration {
   	processEngineConfiguration.setAsyncExecutorActivate(Boolean.valueOf(
         environment.getProperty("engine.asyncexecutor.activate", "true")));
   	processEngineConfiguration.setHistory(environment.getProperty("engine.history.level", "full"));
+  	
+  	processEngineConfiguration.setTaskQueryLimit(Integer.parseInt(environment.getProperty(TASK_QUERY_LIMIT, "20000")));
+  	processEngineConfiguration.setExecutionQueryLimit(Integer.parseInt(environment.getProperty(EXECUTION_QUERY_LIMIT, "20000")));
+  	processEngineConfiguration.setHistoricTaskQueryLimit(Integer.parseInt(environment.getProperty(HISTORIC_QUERY_LIMIT, "20000")));
+  	processEngineConfiguration.setHistoricProcessInstancesQueryLimit(Integer.parseInt(environment.getProperty(HISTORIC_PROCINST_QUERY_LIMIT, "20000")));
   	
   	String mailEnabled = environment.getProperty("engine.email.enabled");
   	if ("true".equals(mailEnabled)) {
